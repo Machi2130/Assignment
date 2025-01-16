@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/App.css' %}" />
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    <script src="{% static 'js/script.js' %}" defer></script>
+    <title>Chat Dashboard</title>
+</head>
+<body>
+    <div class="dashboard">
+        <nav class="navbar">
+            <div class="navbar-brand">
+                <button class="toggle-btn">☰</button>
+                <h1>Chat</h1>
+            </div>
+            <div class="nav-right">
+                <div class="current-user">
+                    <!-- <div class="user-avatar">👤</div> -->
+                    <span id="currentUserName">{{ request.user.username }}</span>
+                </div>
+                <div class="nav-controls">
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="logout-icon">↪</i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <div class="container">
+            <aside class="sidebar">
+                <div class="search-box">
+                    <input type="text" placeholder="Search users...">
+                </div>
+                <div class="users-list" id="usersList">
+                    <!-- Users will be loaded dynamically -->
+                </div>
+            </aside>
+
+            <main class="chat-area">
+                <div class="chat-header">
+                    <div class="chat-user-info">
+                        <!-- <div class="user-avatar">👤</div> -->
+                        <h3 id="chatUserName">Select a chat</h3>
+                    </div>
+                </div>
+                <div class="messages-container" id="messagesContainer"></div>
+                <div class="message-input">
+                    <input type="text" id="messageInput" placeholder="Type your message...">
+                    <button class="send-btn" onclick="sendMessage()">Send</button>
+                </div>
+            </main>
+
+            <aside class="right-panel">
+                <div class="user-details-card">
+                    <div class="user-header">
+                        <!-- <div class="user-avatar large">👤</div> -->
+                        <h3 id="selected-user-name">Select a chat</h3>
+                    </div>
+                    <div class="user-info">
+                        <div class="info-item">
+                            <span class="label">Email:</span>
+                            <span id="selected-user-email">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Status:</span>
+                            <span id="selected-user-status">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Session Started:</span>
+                            <span id="chat-session-time">-</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>a
+</body>
+</html>

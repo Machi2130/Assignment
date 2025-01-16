@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+{% load static %}
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App Authentication</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #2196F3;
+            --dark-color: #333;
+            --light-color: #f4f4f4;
+            --transition-speed: 0.6s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(-45deg, #667eea, #764ba2, #6B8DD6, #8E37D7);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            width: 800px;
+            min-height: 500px;
+            display: flex;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .form-container {
+            flex: 1;
+            padding: 40px;
+            transition: all var(--transition-speed) cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform-origin: left center;
+            position: relative; 
+        }
+
+        .switch-container {
+            flex: 1;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            padding: 40px;
+            color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .switch-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            transform: translateX(-100%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: var(--dark-color);
+            font-size: 2em;
+            transform: translateY(-20px);
+            opacity: 0;
+            animation: slideDown 0.5s forwards;
+        }
+
+        @keyframes slideDown {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: slideRight 0.5s forwards;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: transparent;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+            transform: scale(1.02);
+        }
+
+        .form-group label {
+            position: absolute;
+            left: 12px;
+            top: 12px;
+            color: #999;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            background: white;
+            padding: 0 5px;
+        }
+
+        .form-group input:focus + label,
+        .form-group input:valid + label {
+            top: -10px;
+            font-size: 14px;
+            color: var(--primary-color);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0,0,0,0.2);
+        }
+
+        .ripple {
+            position: absolute;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .switch-btn {
+            background: transparent;
+            border: 2px solid white;
+            width: 180px;
+            margin: 20px auto;
+        }
+
+        .switch-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .switch-container h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards 0.5s;
+        }
+
+        .switch-container p {
+            margin-bottom: 30px;
+            font-size: 1.1em;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards 0.7s;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .hidden {
+            display: none;
+            opacity: 0;
+            transform: rotateY(90deg);
+        }
+
+        .error-message {
+            color: #ff3333;
+            margin-top: 5px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--primary-color);
+            margin-top: 5px;
+            font-size: 14px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div class="form-container" id="loginForm">
+            <h1>Welcome Back!</h1>
+            <form id="login-form" onsubmit="event.preventDefault(); handleLogin();">
+                
+                <div class="form-group">
+                    <input type="email" id="login-email" placeholder="Email" required>
+                    <label for="login-email">Email</label>
+                    <span class="error-message" id="login-email-error"></span>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" placeholder="Password" required>
+                    <label for="login-password">Password</label>
+                    <span class="error-message" id="login-password-error"></span>
+                </div>
+                <button type="submit">Login</button>
+                <div id="login-error" style="display: none; color: red;"></div>
+            </form>
+        </div>
+
+        <!-- Switch Container -->
+        <div class="switch-container">
+            <div id="loginSwitch">
+                <h2>New Here?</h2>
+                <p>Sign up and discover great opportunities to connect!</p>
+                <button class="switch-btn" onclick="toggleForms()">Sign Up</button>
+            </div>
+            <div id="signupSwitch" class="hidden">
+                <h2>One of Us?</h2>
+                <p>If you already have an account, just login.</p>
+                <button class="switch-btn" onclick="toggleForms()">Login</button>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div class="form-container hidden" id="signupForm">
+            <h1>Create Account</h1>
+            <form id="signup-form" onsubmit="event.preventDefault(); handleSignup();">
+                <div class="form-group">
+                    <input type="text" id="signup-username" placeholder="Username" required>
+                    <label for="signup-username">Username</label>
+                    <span class="error-message" id="signup-username-error"></span>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="signup-email" placeholder="Email" required>
+                    <label for="signup-email">Email</label>
+                    <span class="error-message" id="signup-email-error"></span>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="signup-password1" placeholder="Password" required>
+                    <label for="signup-password1">Password</label>
+                    <span class="error-message" id="signup-password1-error"></span>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="signup-password2" placeholder="Confirm Password" required>
+                    <label for="signup-password2">Confirm Password</label>
+                    <span class="error-message" id="signup-password2-error"></span>
+                </div>
+                <button type="submit">Signup</button>
+                <div id="signup-error" style="display: none; color: red;"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function getCsrfToken() {
+            return document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        }
+
+        function handleLogin() {
+            const csrftoken = getCsrfToken();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+    
+            fetch('/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/chat/';
+                }
+            });
+        }
+
+        function getCsrfToken() {
+            const name = 'csrftoken';
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function handleSignup() {
+            const csrftoken = getCsrfToken();
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password1 = document.getElementById('signup-password1').value;
+            const password2 = document.getElementById('signup-password2').value;
+    
+            fetch('/signup/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password1: password1,
+                    password2: password2
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    document.getElementById('signup-error').textContent = data.error;
+                    document.getElementById('signup-error').style.display = 'block';
+                }
+            });
+        }        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const loginSwitch = document.getElementById('loginSwitch');
+            const signupSwitch = document.getElementById('signupSwitch');
+        
+            loginForm.classList.toggle('hidden');
+            signupForm.classList.toggle('hidden');
+            loginSwitch.classList.toggle('hidden');
+            signupSwitch.classList.toggle('hidden');
+        }
+        
+        // Add ripple effect to buttons
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+        </script>
+        
+</body>
+</html>
